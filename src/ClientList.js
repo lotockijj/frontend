@@ -48,12 +48,14 @@ class ClientList extends Component {
                                 <tr key={account.id}>
                                     <td>{account.id}</td>
                                     <td>{account.firstName}</td>
+                                    <td>{account.lastName}</td>
+                                    <td>{account.email}</td>
                                     <td>
                                         <ButtonGroup>
                                             <Button 
                                                 color="primary" 
                                                 tag={Link} 
-                                                to={`/accounts/${account.id}`}  // Fixed route path
+                                                to={`/account/${account.id}`}  // Fixed route path
                                             >
                                                 Edit
                                             </Button>
