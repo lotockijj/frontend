@@ -49,8 +49,11 @@ function RegistrationForm() {
                 const errorData = await response.json();
                 throw new Error(errorData.message || 'Registration failed');
             }
-
-            navigate('/login'); // Redirect to login after successful registration
+            const account = await response.json();
+            // if (account.token) {
+            //     localStorage.setItem('authToken', account.token);
+            // }
+            navigate(`/account/${account.id}`); //navigate('/login'); // Redirect to login after successful registration
         } catch (error) {
             setErrors({ submit: error.message });
         }
