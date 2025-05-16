@@ -30,7 +30,7 @@ class ClientList extends Component {
 
     render() {
         const { accounts } = this.state;
-        
+
         return (
             <div>
                 <Container fluid>
@@ -52,15 +52,15 @@ class ClientList extends Component {
                                     <td>{account.email}</td>
                                     <td>
                                         <ButtonGroup>
-                                            <Button 
-                                                color="primary" 
-                                                tag={Link} 
+                                            <Button
+                                                color="primary"
+                                                tag={Link}
                                                 to={`/account/${account.id}`}  // Fixed route path
                                             >
                                                 Edit
                                             </Button>
-                                            <Button 
-                                                color="danger" 
+                                            <Button
+                                                color="danger"
                                                 onClick={() => this.remove(account.id)}
                                             >
                                                 Delete
@@ -72,6 +72,7 @@ class ClientList extends Component {
                         </tbody>
                     </Table>
                 </Container>
+                <div><Link to="/register">Register</Link></div>
             </div>
         );
     }
