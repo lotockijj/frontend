@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Button, Form, FormGroup, Label, Input, Alert } from 'reactstrap';
+import { Button, Form, FormGroup, Label, Input, Alert, Table } from 'reactstrap';
 
 function AccountEdit() {
     const { id } = useParams();
@@ -11,8 +11,10 @@ function AccountEdit() {
         lastName: '',
         email: ''
     });
+    const [tasks, setTasks] = useState([]); // New state for tasks
     const [error, setError] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isLoadingTasks, setIsLoadingTasks] = useState(false); // New loading state for tasks
 
     useEffect(() => {
         const fetchAccount = async () => {
@@ -33,7 +35,29 @@ function AccountEdit() {
             }
         };
 
+        const fetchTasks = async () => {
+            setIsLoadingTasks(true);
+            try {
+                const response = await fetch(`/api/tasks/get/${id}`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const text = await response.text();
+                const data = text ? JSON.parse(text) : [];
+
+                setTasks(data);
+            } catch (error) {
+                console.error('Failed to fetch tasks:', error);
+                setError(`Failed to load tasks: ${error.message}`);
+            } finally {
+                setIsLoadingTasks(false);
+            }
+        };
+
         fetchAccount();
+        fetchTasks();
     }, [id]);
 
     const handleChange = (e) => {
@@ -115,6 +139,42 @@ function AccountEdit() {
                     {isSubmitting ? 'Saving...' : 'Save Changes'}
                 </Button>
             </Form>
+            <h2 className="mt-5">Tasks</h2>
+            {isLoadingTasks ? (
+                <p>Loading tasks...</p>
+            ) : (
+                <Table striped>
+                    <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {tasks.length > 0 ? (
+                        tasks.map(task => (
+                            <tr key={task.id}>
+                                <td>{task.title}</td>
+                                <td>{task.description}</td>
+                                <td>
+                                        <span className={`badge ${
+                                            task.status === 'Completed' ? 'bg-success' :
+                                                task.status === 'Progress' ? 'bg-warning' : 'bg-secondary'
+                                        }`}>
+                                            {task.status}
+                                        </span>
+                                </td>
+                            </tr>
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan="3" className="text-center">No tasks found</td>
+                        </tr>
+                    )}
+                    </tbody>
+                </Table>
+            )}
         </div>
     );
 }
