@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {useParams, useNavigate } from 'react-router-dom';
+import {useParams, useNavigate, Link} from 'react-router-dom';
 import { Button, Form, FormGroup, Label, Input, Alert, Table } from 'reactstrap';
 
 function AccountEdit() {
@@ -224,6 +224,7 @@ function AccountEdit() {
                     </tbody>
                 </Table>
             )}
+            <div><Link to={`/task/new/${account.id}`}>Create a task</Link></div>
             <h1>{user.name}</h1>
             <img
                 className="avatar"

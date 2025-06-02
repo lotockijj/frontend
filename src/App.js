@@ -4,6 +4,7 @@ import AccountEdit from './AccountEdit';
 import RegistrationForm from './RegistrationForm';
 import LoginForm from './LoginForm';
 import TaskEdit from './TaskEdit';
+import TaskForm from "./TaskForm";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
       <Route path="/register" element={<RegistrationForm />} />
       <Route path="/login" element={<LoginForm />} />
       <Route path="/tasks/:taskId/edit" element={<TaskEdit />} />
+      <Route path="/task/new/:accountId" element={<TaskForm />} />
     </Routes>
   );
 }
