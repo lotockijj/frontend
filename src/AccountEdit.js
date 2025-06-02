@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import {useParams, useNavigate } from 'react-router-dom';
 import { Button, Form, FormGroup, Label, Input, Alert, Table } from 'reactstrap';
 
 function AccountEdit() {
@@ -15,7 +15,25 @@ function AccountEdit() {
     const [error, setError] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isLoadingTasks, setIsLoadingTasks] = useState(false); // New loading state for tasks
-
+    const user = {
+        name: 'Hedy Lamarr',
+        imageUrl: 'https://i.imgur.com/yXOvdOSs.jpg',
+        imageSize: 90,
+    };
+    const products = [
+        { title: 'Cabbage', id: 1, color: 'Green',isFruit: false },
+        { title: 'Garlic', id: 2, color: 'White',isFruit: false },
+        { title: 'Apple', id: 3, color: 'Red',isFruit: true },
+    ];
+    const listItems = products.map(product =>
+        <li key={product.id}
+            style={{
+                color: product.isFruit ? 'magenta' : 'darkgreen'
+            }}>
+            {product.title}
+            ({product.color})
+        </li>
+    );
     useEffect(() => {
         const fetchAccount = async () => {
             try {
@@ -92,6 +110,25 @@ function AccountEdit() {
         }
     };
 
+    const handleEditTasks = async (taskId) => {
+        try {
+            const response = await fetch(`/api/tasks/${taskId}`, {
+                method: 'GET' // or 'PUT' if modifying data
+            });
+            const taskData = await response.json();
+
+            navigate(`/tasks/${taskId}/edit`, {
+                state: { task: taskData } // Pass the entire task object
+            });
+        } catch (error) {
+            console.error("Failed to fetch tasks:", error);
+        }
+    };
+
+    const [count, setCount] = useState(0);
+    function handleClick() {
+        setCount(count + 1);
+    }
     return (
         <div className="container mt-4">
             <h2>Edit Account</h2>
@@ -146,6 +183,7 @@ function AccountEdit() {
                 <Table striped>
                     <thead>
                     <tr>
+                        <th>id</th>
                         <th>Title</th>
                         <th>Description</th>
                         <th>Status</th>
@@ -155,6 +193,7 @@ function AccountEdit() {
                     {tasks.length > 0 ? (
                         tasks.map(task => (
                             <tr key={task.id}>
+                                <td>{task.id}</td>
                                 <td>{task.title}</td>
                                 <td>{task.description}</td>
                                 <td>
@@ -164,6 +203,16 @@ function AccountEdit() {
                                         }`}>
                                             {task.status}
                                         </span>
+                                </td>
+                                <td>
+                                    <Button
+                                        color="primary"
+                                        //tag={Link}
+                                        //to={`/api/tasks/${account.id}`}  // Fixed route path
+                                        onClick={() => handleEditTasks(task.id)} // Use onClick instead of Link
+                                    >
+                                        Edit
+                                    </Button>
                                 </td>
                             </tr>
                         ))
@@ -175,8 +224,44 @@ function AccountEdit() {
                     </tbody>
                 </Table>
             )}
+            <h1>{user.name}</h1>
+            <img
+                className="avatar"
+                src={user.imageUrl}
+                alt={'Photo of ' + user.name}
+                style={{
+                    width: user.imageSize,
+                    height: user.imageSize
+                }}
+            />
+            <ul>{listItems}</ul>
+            <button onClick={handleClick}>
+                Clicked {count} times
+            </button>--
+            <button onClick={handleClick}>
+                Clicked {count} times
+            </button>
+
+            <div>
+                <h1>Counters that update separately</h1>
+                <MyButton />--
+                <MyButton />
+            </div>
         </div>
     );
 }
 
+function MyButton() {
+    const [counter, setCount] = useState(0);
+
+    function handleClick() {
+        setCount(counter + 1);
+    }
+
+    return (
+        <button onClick={handleClick}>
+            Clicked {counter} times
+        </button>
+    );
+}
 export default AccountEdit;

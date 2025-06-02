@@ -3,6 +3,7 @@ import ClientList from './ClientList';
 import AccountEdit from './AccountEdit';
 import RegistrationForm from './RegistrationForm';
 import LoginForm from './LoginForm';
+import TaskEdit from './TaskEdit';
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
       <Route path="/account/:id" element={<AccountEdit />} />
       <Route path="/register" element={<RegistrationForm />} />
       <Route path="/login" element={<LoginForm />} />
+      <Route path="/tasks/:taskId/edit" element={<TaskEdit />} />
     </Routes>
   );
 }
