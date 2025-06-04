@@ -7,31 +7,59 @@ function TaskEdit() {
     const { state } = useLocation();
     const navigate = useNavigate();
 
+    // Helper to ensure location is always an object with formattedAddress
+    const normalizeLocation = (loc) => {
+        if (!loc) return { formattedAddress: '' };
+        if (typeof loc === 'string') return { formattedAddress: loc };
+        if (typeof loc === 'object' && loc.formattedAddress !== undefined) return loc;
+        return { formattedAddress: '' };
+    };
+
     // Initialize state with location state or empty values
-    const [task, setTask] = useState(state?.task || {
-        id: taskId,
-        title: '',
-        description: '',
-        status: '',
-        account: '' // Make sure this is included if needed
+    const [task, setTask] = useState(() => {
+        const initial = state?.task || {
+            id: taskId,
+            title: '',
+            description: '',
+            status: '',
+            account: '',
+            location: { formattedAddress: '' }
+        };
+        return {
+            ...initial,
+            location: normalizeLocation(initial.location)
+        };
     });
 
     const [error, setError] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [query, setQuery] = useState('');
+    const [suggestions, setSuggestions] = useState([]);
 
     // Optional: Fetch task if not passed via state
     useEffect(() => {
         if (!state?.task) {
             fetch(`/api/tasks/${taskId}`)
                 .then(res => res.json())
-                .then(data => setTask(data))
+                .then(data => setTask({
+                    ...data,
+                    location: normalizeLocation(data.location)
+                }))
                 .catch(err => setError(err.message));
         }
     }, [taskId, state]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setTask(prev => ({ ...prev, [name]: value }));
+        setTask(prev => {
+            if (name === 'location') {
+                return {
+                    ...prev,
+                    location: { formattedAddress: value }
+                };
+            }
+            return { ...prev, [name]: value };
+        });
     };
 
     const handleSubmit = async (e) => {
@@ -39,21 +67,22 @@ function TaskEdit() {
         setIsSubmitting(true);
 
         try {
-            console.log(JSON.stringify(task));
-            // Include ALL required fields in payload
+            // Prepare payload with location as object
             const payload = {
-                id: parseInt(task.id, 10), // Make sure to include the ID
+                id: parseInt(task.id, 10),
                 title: task.title,
                 description: task.description,
                 status: task.status,
-                account: { id: parseInt(task.account, 10) } // Include if your backend needs it
+                account: { id: parseInt(task.account, 10) },
+                location: {
+                    formattedAddress: task.location.formattedAddress
+                }
             };
 
-            console.log('Sending:', payload); // Verify before sending
             const response = await fetch(`/api/tasks/${task.account}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload) // Send the complete payload
+                body: JSON.stringify(payload)
             });
 
             const responseData = await response.json();
@@ -65,7 +94,7 @@ function TaskEdit() {
             navigate(`/account/${task.account}`, {
                 state: {
                     message: 'Task updated successfully!',
-                    updatedTask: responseData // Use the returned data
+                    updatedTask: responseData
                 }
             });
 
@@ -74,6 +103,32 @@ function TaskEdit() {
         } finally {
             setIsSubmitting(false);
         }
+    };
+
+    const handleSearchChange = async (e) => {
+        const value = e.target.value;
+        setQuery(value);
+        setTask(prev => ({
+            ...prev,
+            location: { formattedAddress: value }
+        }));
+
+        if (value.length > 2) {
+            const res = await fetch(`/cities?address=${value}`);
+            const data = await res.json();
+            setSuggestions(data); // array of string city names
+        } else {
+            setSuggestions([]);
+        }
+    };
+
+    const handleSuggestionClick = (city) => {
+        setTask(prev => ({
+            ...prev,
+            location: { formattedAddress: city }
+        }));
+        setQuery(city);
+        setSuggestions([]);
     };
 
     return (
@@ -119,7 +174,7 @@ function TaskEdit() {
                         name="status"
                         value={task.status}
                         onChange={handleChange}
-                        className="d-flex align-items-center" // Added for vertical alignment
+                        className="d-flex align-items-center"
                     >
                         {['Created', 'Progress', 'Completed'].map((status) => (
                             <option
@@ -134,6 +189,30 @@ function TaskEdit() {
                             </option>
                         ))}
                     </Input>
+                </FormGroup>
+
+                <FormGroup>
+                    <Label>Location</Label>
+                    <Input
+                        type="text"
+                        name="locationSearch"
+                        value={task.location.formattedAddress}
+                        onChange={handleSearchChange}
+                        placeholder="Start typing city name..."
+                    />
+                    {suggestions.length > 0 && (
+                        <ul className="suggestions-list">
+                            {suggestions.map((city, index) => (
+                                <li
+                                    key={index}
+                                    onClick={() => handleSuggestionClick(city)}
+                                    style={{ cursor: 'pointer', padding: '5px' }}
+                                >
+                                    {city}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
                 </FormGroup>
 
                 <Button

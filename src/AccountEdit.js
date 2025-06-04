@@ -186,6 +186,7 @@ function AccountEdit() {
                         <th>id</th>
                         <th>Title</th>
                         <th>Description</th>
+                        <th>Location</th>
                         <th>Status</th>
                     </tr>
                     </thead>
@@ -196,6 +197,7 @@ function AccountEdit() {
                                 <td>{task.id}</td>
                                 <td>{task.title}</td>
                                 <td>{task.description}</td>
+                                <th>{task.locationDto?.formattedAddress || ''}</th>
                                 <td>
                                         <span className={`badge ${
                                             task.status === 'Completed' ? 'bg-success' :
