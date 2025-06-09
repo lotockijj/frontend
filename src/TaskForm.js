@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Input } from 'reactstrap';
 
 function TaskForm() {
     const { accountId } = useParams();
@@ -8,11 +9,14 @@ function TaskForm() {
         title: '',
         description: '',
         status: 'CREATED',
-        account: '' // initialize as empty
+        account: '', // initialize as empty
+        location: { formattedAddress: '' }
     });
 
     const [errors, setErrors] = useState({});
     const navigate = useNavigate();
+    const [query, setQuery] = useState('');
+    const [suggestions, setSuggestions] = useState([]);
 
     // Set accountId after mount
     useEffect(() => {
@@ -55,6 +59,36 @@ function TaskForm() {
         } catch (error) {
             setErrors({ submit: error.message });
         }
+    };
+
+    const handleSearchChange = async (e) => {
+        const value = e.target.value;
+        setQuery(value);
+        setFormData(prev => ({
+            ...prev,
+            location: { formattedAddress: value }
+        }));
+
+        if (value.length > 2) {
+            try {
+                const res = await fetch(`/cities?address=${value}`);
+                const data = await res.json();
+                setSuggestions(data); // array of string city names
+            } catch (err) {
+                setSuggestions([]);
+            }
+        } else {
+            setSuggestions([]);
+        }
+    };
+
+    const handleSuggestionClick = (city) => {
+        setFormData(prev => ({
+            ...prev,
+            location: { formattedAddress: city }
+        }));
+        setQuery(city);
+        setSuggestions([]);
     };
 
     return (
@@ -100,7 +134,31 @@ function TaskForm() {
                         disabled // optionally make it read-only
                     />
                 </div>
-
+                <div className="mb-3">
+                    <label htmlFor="locationSearch" className="form-label">Location</label>
+                    <Input
+                        type="text"
+                        name="locationSearch"
+                        id="locationSearch"
+                        value={formData.location.formattedAddress}
+                        onChange={handleSearchChange}
+                        placeholder="Start typing city name..."
+                        autoComplete="off"
+                    />
+                    {suggestions.length > 0 && (
+                        <ul className="suggestions-list" style={{ border: '1px solid #ccc', borderRadius: 4, marginTop: 2, paddingLeft: 0, listStyle: 'none', maxHeight: 150, overflowY: 'auto', position: 'absolute', background: 'white', zIndex: 10 }}>
+                            {suggestions.map((city, index) => (
+                                <li
+                                    key={index}
+                                    onClick={() => handleSuggestionClick(city)}
+                                    style={{ cursor: 'pointer', padding: '5px' }}
+                                >
+                                    {city}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
                 <button type="submit" className="btn btn-primary">Create task</button>
             </form>
         </div>
