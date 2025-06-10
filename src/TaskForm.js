@@ -9,7 +9,7 @@ function TaskForm() {
         title: '',
         description: '',
         status: 'CREATED',
-        account: '', // initialize as empty
+        account: { id: '' }, // Initialize as object
         location: { formattedAddress: '' }
     });
 
@@ -21,7 +21,10 @@ function TaskForm() {
     // Set accountId after mount
     useEffect(() => {
         if (accountId) {
-            setFormData(prev => ({ ...prev, account: accountId }));
+            setFormData(prev => ({
+                ...prev,
+                account: { id: accountId }  // Now account is an object with id field
+            }));
         }
     }, [accountId]);
 
@@ -129,7 +132,7 @@ function TaskForm() {
                         className="form-control"
                         id="account"
                         name="account"
-                        value={formData.account}
+                        value={formData.account.id}
                         onChange={handleChange}
                         disabled // optionally make it read-only
                     />

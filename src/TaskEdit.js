@@ -196,7 +196,7 @@ function TaskEdit() {
                     <Input
                         type="text"
                         name="locationSearch"
-                        value={task.location.formattedAddress}
+                        value={task.locationDto.formattedAddress}
                         onChange={handleSearchChange}
                         placeholder="Start typing city name..."
                     />
