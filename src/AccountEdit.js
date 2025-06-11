@@ -125,6 +125,17 @@ function AccountEdit() {
         }
     };
 
+    const handleTaskDelete = async (taskId) => {
+        try {
+            await fetch(`/api/tasks/${taskId}`, {
+                method: 'DELETE'
+            });
+            setTasks(tasks.filter(task => task.id !== taskId));
+        } catch (error) {
+            console.error("Failed to fetch tasks:", error);
+        }
+    };
+
     const [count, setCount] = useState(0);
     function handleClick() {
         setCount(count + 1);
@@ -214,6 +225,14 @@ function AccountEdit() {
                                         onClick={() => handleEditTasks(task.id)} // Use onClick instead of Link
                                     >
                                         Edit
+                                    </Button>
+                                    <Button
+                                        color="danger"
+                                        //tag={Link}
+                                        //to={`/api/tasks/${account.id}`}  // Fixed route path
+                                        onClick={() => handleTaskDelete(task.id)} // Use onClick instead of Link
+                                    >
+                                        Delete
                                     </Button>
                                 </td>
                             </tr>
