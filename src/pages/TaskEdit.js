@@ -43,7 +43,7 @@ function TaskEdit() {
                 .then(res => res.json())
                 .then(data => setTask({
                     ...data,
-                    location: normalizeLocation(data.location)
+                    location: normalizeLocation(data.location || data.locationDto)
                 }))
                 .catch(err => setError(err.message));
         }

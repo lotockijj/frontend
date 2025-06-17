@@ -29,6 +29,10 @@ function LoginForm() {
             }
 
             const data = await response.json(); // contains account info
+            // Store accessToken in localStorage
+            if (data.accessToken) {
+                localStorage.setItem('accessToken', data.accessToken);
+            }
             navigate(`/account/${data.id}`); // use the actual response
         } catch (err) {
             setError(err.message);

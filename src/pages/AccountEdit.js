@@ -21,9 +21,7 @@ function AccountEdit() {
         imageSize: 90,
     };
     const products = [
-        { title: 'Cabbage', id: 1, color: 'Green',isFruit: false },
-        { title: 'Garlic', id: 2, color: 'White',isFruit: false },
-        { title: 'Apple', id: 3, color: 'Red',isFruit: true },
+// ...
     ];
     const listItems = products.map(product =>
         <li key={product.id}
@@ -35,9 +33,19 @@ function AccountEdit() {
         </li>
     );
     useEffect(() => {
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+            setError('No access token found. Please log in again.');
+            return;
+        }
         const fetchAccount = async () => {
             try {
-                const response = await fetch(`/api/account/${id}`);
+                const response = await fetch(`/api/account/${id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -56,7 +64,12 @@ function AccountEdit() {
         const fetchTasks = async () => {
             setIsLoadingTasks(true);
             try {
-                const response = await fetch(`/api/tasks/get/${id}`);
+                const response = await fetch(`/api/tasks/get/${id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -86,11 +99,19 @@ function AccountEdit() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
-
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+            setError('No access token found. Please log in again.');
+            setIsSubmitting(false);
+            return;
+        }
         try {
             const response = await fetch(`/api/account/${account.id}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify(account)
             });
 
@@ -111,9 +132,18 @@ function AccountEdit() {
     };
 
     const handleEditTasks = async (taskId) => {
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+            setError('No access token found. Please log in again.');
+            return;
+        }
         try {
             const response = await fetch(`/api/tasks/${taskId}`, {
-                method: 'GET' // or 'PUT' if modifying data
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
             });
             const taskData = await response.json();
 
@@ -126,9 +156,18 @@ function AccountEdit() {
     };
 
     const handleTaskDelete = async (taskId) => {
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+            setError('No access token found. Please log in again.');
+            return;
+        }
         try {
             await fetch(`/api/tasks/${taskId}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
             });
             setTasks(tasks.filter(task => task.id !== taskId));
         } catch (error) {
