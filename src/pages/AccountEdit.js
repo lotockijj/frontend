@@ -181,6 +181,9 @@ function AccountEdit() {
     }
     return (
         <div className="container mt-4">
+            {(account?.roles || []).includes('ADMIN') && (
+                <h3><Link to="/">Admin console</Link></h3>
+            )}
             <h2>Edit Account</h2>
             {error && <Alert color="danger">{error}</Alert>}
 

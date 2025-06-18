@@ -23,9 +23,25 @@ class ClientList extends Component {
     }
 
     componentDidMount() {
-        fetch('/api/account')
-            .then(response => response.json())
-            .then(data => this.setState({ accounts: data }));
+        const token = localStorage.getItem('accessToken'); // or wherever you store your token
+
+        fetch('/api/account', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => this.setState({ accounts: data }))
+            .catch(error => {
+                console.error('Error fetching accounts:', error);
+                // Handle error (e.g., show error message to user)
+            });
     }
 
     render() {
